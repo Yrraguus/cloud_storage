@@ -14,6 +14,7 @@ create table if not exists cloud_service.files
     id int primary key auto_increment,
     filename varchar(255) not null,
     data BLOB not null,
+    size long,
     user_id int not null,
     FOREIGN KEY (user_id) REFERENCES cloud_service.users (id)
 );

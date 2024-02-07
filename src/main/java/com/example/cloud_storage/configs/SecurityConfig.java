@@ -15,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
@@ -35,6 +36,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors()
+                .and()
+                .httpBasic().disable()
+
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/logout").authenticated()
@@ -45,6 +50,13 @@ public class SecurityConfig {
                 .antMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().permitAll()
                 .and()
+
+//                .logout()
+//                .invalidateHttpSession(true)
+//                .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.OK))
+//                .clearAuthentication(true)
+//                .and()
+
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .exceptionHandling()

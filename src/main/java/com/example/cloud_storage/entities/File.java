@@ -27,6 +27,9 @@ public class File {
     @Column(name = "data", columnDefinition = "BLOB")
     private byte[] data;
 
+    @Column(name="size")
+    private Long size;
+
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")
     private User user;

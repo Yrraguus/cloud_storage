@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -23,14 +24,14 @@ import java.util.stream.Collectors;
 @Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtTokenUtils jwtTokenUtils;
+    public static List<String> invalidTokens;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
+
         String username = null;
-        String jwt = null;
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            jwt = authHeader.substring(7);
+        String jwt = request.getHeader("auth-token");
+        if (jwt != null && isValidToken(jwt)) {
             try {
                 username = jwtTokenUtils.getUsername(jwt);
             } catch (ExpiredJwtException e) {
@@ -39,7 +40,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 log.debug("Подпись неправильная");
             }
         }
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        if (username != null && SecurityContextHolder.getContext().
+
+                getAuthentication() == null) {
             UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                     username,
                     null,
@@ -48,5 +51,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(token);
         }
         filterChain.doFilter(request, response);
+    }
+
+    private boolean isValidToken(String token) {
+        return (invalidTokens==null || !invalidTokens.contains(token));
     }
 }

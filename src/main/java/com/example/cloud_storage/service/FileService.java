@@ -17,15 +17,14 @@ public class FileService {
     private FileRepository fileRepository;
     private UserRepository userRepository;
 
-    @PostMapping("/file")
-    public boolean uploadFile(String filename, byte[] fileContent, Principal principal) {
+    public boolean uploadFile(String filename, byte[] fileContent, Long size, Principal principal) {
         User user = userRepository.findByUsername(principal.getName()).orElseThrow(()
                 -> new UsernameNotFoundException(String.format("user not found")));
-
         File uploadFile = File.builder()
                 .fileName(filename)
                 .data(fileContent)
                 .user(user)
+                .size(size)
                 .build();
         fileRepository.save(uploadFile);
         return true;
