@@ -28,10 +28,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
+        String authHeader = request.getHeader("auth-token");
         String username = null;
-        String jwt = request.getHeader("auth-token");
-        if (jwt != null && isValidToken(jwt)) {
+        String jwt = null;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwt = authHeader.substring(7);
             try {
                 username = jwtTokenUtils.getUsername(jwt);
             } catch (ExpiredJwtException e) {
@@ -40,6 +41,17 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 log.debug("Подпись неправильная");
             }
         }
+//        String username = null;
+//        String jwt = request.getHeader("auth-token");
+//        if (jwt != null && isValidToken(jwt)) {
+//            try {
+//                username = jwtTokenUtils.getUsername(jwt);
+//            } catch (ExpiredJwtException e) {
+//                log.debug("Время жизни токена вышло");
+//            } catch (SignatureException e) {
+//                log.debug("Подпись неправильная");
+//            }
+//        }
         if (username != null && SecurityContextHolder.getContext().
 
                 getAuthentication() == null) {
@@ -54,6 +66,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     }
 
     private boolean isValidToken(String token) {
-        return (invalidTokens==null || !invalidTokens.contains(token));
+        return (invalidTokens == null || !invalidTokens.contains(token));
     }
 }

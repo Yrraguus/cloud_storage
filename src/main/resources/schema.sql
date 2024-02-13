@@ -42,7 +42,6 @@ foreign key (role_id) references cloud_service.roles (id)
 #     ('user1', '$2a$04$Fx/SX9.BAvtPlMyIIqqFx.hLY2Xp8nnhpzvEEVINvVpwIPbA3v/.i'),
 #     ('user2', '$2a$04$Fx/SX9.BAvtPlMyIIqqFx.hLY2Xp8nnhpzvEEVINvVpwIPbA3v/.i');
 # -- 100
-# -- 101?
 #
 # insert into users_roles (user_id, role_id)
 # values

@@ -12,14 +12,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService implements UserDetailsService {
     private UserRepository userRepository;
-    private RoleService roleService;
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public void setUserRepository(UserRepository userRepository) {
@@ -28,12 +27,10 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     public void setRoleService(RoleService roleService) {
-        this.roleService = roleService;
     }
 
     @Autowired
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
     }
 
     public Optional<User> findByUsername(String username) {
@@ -44,12 +41,17 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(
-                String.format("Пользователь '%s' не найден", username)
+                String.format("User '%s' not found", username)
         ));
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
                 user.getPassword(),
                 user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList())
         );
+    }
+
+    public User getUser(Principal principal) {
+        return userRepository.findByUsername(principal.getName()).orElseThrow(()
+                -> new UsernameNotFoundException(String.format("user not found")));
     }
 }
