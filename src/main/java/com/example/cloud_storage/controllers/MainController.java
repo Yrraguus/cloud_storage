@@ -25,8 +25,7 @@ public class MainController {
     private final FileService fileService;
 
     @PostMapping("/file")
-    public ResponseEntity<?> uploadFile(@RequestHeader("auth-token") @NotNull String authToken,
-                                        @RequestParam("filename") @NotNull String fileName,
+    public ResponseEntity<?> uploadFile(@RequestParam("filename") @NotNull String fileName,
                                         @RequestParam("file") MultipartFile fileContent,
                                         Principal principal) throws IOException {
         fileService.uploadFile(fileName, fileContent.getBytes(), fileContent.getSize(), principal);
@@ -34,16 +33,14 @@ public class MainController {
     }
 
     @DeleteMapping("/file")
-    public ResponseEntity<?> deleteFile(@RequestHeader("auth-token") @NotNull String authToken,
-                                        @RequestParam("filename") @NotNull String fileName,
+    public ResponseEntity<?> deleteFile(@RequestParam("filename") @NotNull String fileName,
                                         Principal principal) {
         String response = fileService.deleteFile(fileName, principal);
         return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/file")
-    public ResponseEntity<byte[]> getFile(@RequestHeader("auth-token") @NotNull String authToken,
-                                          @RequestParam("filename") @NotNull String fileName,
+    public ResponseEntity<byte[]> getFile(@RequestParam("filename") @NotNull String fileName,
                                           Principal principal) {
         File file = fileService.getFile(principal, fileName);
         return ResponseEntity.ok()
@@ -53,8 +50,7 @@ public class MainController {
     }
 
     @PutMapping("/file")
-    public ResponseEntity<String> renameFile(@RequestHeader("auth-token") @NotNull String authToken,
-                                             @RequestParam("filename") @NotNull String fileName,
+    public ResponseEntity<String> renameFile(@RequestParam("filename") @NotNull String fileName,
                                              @RequestBody String newFileName,
                                              Principal principal) throws ParseException {
         fileService.renameFile(principal, fileName, newFileName);
@@ -62,10 +58,9 @@ public class MainController {
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<FileInfo>> getAllFiles(@RequestHeader("auth-token") @NotNull String authToken,
-                                                      @RequestParam("limit") @NotNull Integer limit,
+    public ResponseEntity<List<FileInfo>> getAllFiles(@RequestParam("limit") @NotNull Integer limit,
                                                       Principal principal) {
-        List<FileInfo> fileInfo = fileService.getListOfFiles(authToken, limit, principal);
+        List<FileInfo> fileInfo = fileService.getListOfFiles(limit, principal);
         return ResponseEntity.ok().body(fileInfo);
     }
 }

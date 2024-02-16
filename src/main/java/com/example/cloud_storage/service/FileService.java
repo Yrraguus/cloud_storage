@@ -39,14 +39,16 @@ public class FileService {
         fileRepository.save(uploadFile);
     }
 
-    public List<FileInfo> getListOfFiles(String authToken, int limit, Principal principal) {
+    public List<FileInfo> getListOfFiles(int limit, Principal principal) {
         List<File> listFiles = fileRepository.findFilesByUser_Username(principal.getName());
         return listFiles.stream()
                 .map(file -> FileInfo.builder()
                         .filename(file.getFileName())
                         .size(Math.toIntExact(file.getSize()))
-                        .build()).collect(Collectors.toList());
-    } //TODO use limit, remove String authToken
+                        .build())
+                .limit(limit)
+                .collect(Collectors.toList());
+    }
 
     public String deleteFile(String fileName, Principal principal) throws FileNotFoundException {
         fileRepository.delete(getFile(principal, fileName));
@@ -54,7 +56,10 @@ public class FileService {
     }
 
     public File getFile(Principal principal, String fileName) throws FileNotFoundException {
-        return getFile(principal, fileName);
+        User user = userRepository.findByUsername(principal.getName()).orElseThrow(()
+                -> new UsernameNotFoundException(String.format("user not found")));
+        return fileRepository.findFileByUserIdAndFileName(user.getId(), fileName).orElseThrow(()
+                -> new FileNotFoundException("file not found"));
     }
 
     public void renameFile(Principal principal, String fileName, String newFileName) throws FileNotFoundException, ParseException {
