@@ -14,7 +14,6 @@ import org.json.simple.parser.ParseException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,8 +23,8 @@ public class FileService {
     private FileRepository fileRepository;
     private UserRepository userRepository;
 
-    public void uploadFile(String filename, byte[] fileContent, Long size, Principal principal) {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(()
+    public void uploadFile(String filename, byte[] fileContent, Long size, String userName) {
+        User user = userRepository.findByUsername(userName).orElseThrow(()
                 -> new UsernameNotFoundException(String.format("user not found")));
         if (fileRepository.findFileByUserIdAndFileName(user.getId(), filename).isPresent()) {
             throw new DuplicateFileNameException("duplicate file name");
@@ -39,8 +38,8 @@ public class FileService {
         fileRepository.save(uploadFile);
     }
 
-    public List<FileInfo> getListOfFiles(int limit, Principal principal) {
-        List<File> listFiles = fileRepository.findFilesByUser_Username(principal.getName());
+    public List<FileInfo> getListOfFiles(int limit, String userName) {
+        List<File> listFiles = fileRepository.findFilesByUser_Username(userName);
         return listFiles.stream()
                 .map(file -> FileInfo.builder()
                         .filename(file.getFileName())
@@ -50,22 +49,22 @@ public class FileService {
                 .collect(Collectors.toList());
     }
 
-    public String deleteFile(String fileName, Principal principal) throws FileNotFoundException {
-        fileRepository.delete(getFile(principal, fileName));
+    public String deleteFile(String fileName, String userName) throws FileNotFoundException {
+        fileRepository.delete(getFile(userName, fileName));
         return "file deleted";
     }
 
-    public File getFile(Principal principal, String fileName) throws FileNotFoundException {
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(()
+    public File getFile(String userName, String fileName) throws FileNotFoundException {
+        User user = userRepository.findByUsername(userName).orElseThrow(()
                 -> new UsernameNotFoundException(String.format("user not found")));
         return fileRepository.findFileByUserIdAndFileName(user.getId(), fileName).orElseThrow(()
                 -> new FileNotFoundException("file not found"));
     }
 
-    public void renameFile(Principal principal, String fileName, String newFileName) throws FileNotFoundException, ParseException {
+    public void renameFile(String userName, String fileName, String newFileName) throws FileNotFoundException, ParseException {
         JSONObject jo = (JSONObject) new JSONParser().parse(newFileName);
         String newFileNameString = (String) jo.get("filename");
-        User user = userRepository.findByUsername(principal.getName()).orElseThrow(()
+        User user = userRepository.findByUsername(userName).orElseThrow(()
                 -> new UsernameNotFoundException(String.format("user not found")));
         File file = fileRepository.findFileByUserIdAndFileName(user.getId(), fileName).orElseThrow(()
                 -> new FileNotFoundException("file not found"));
