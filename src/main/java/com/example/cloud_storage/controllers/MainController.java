@@ -1,9 +1,7 @@
 package com.example.cloud_storage.controllers;
 
 import com.example.cloud_storage.entities.File;
-import com.example.cloud_storage.entities.User;
 import com.example.cloud_storage.model.FileInfo;
-import com.example.cloud_storage.repositories.UserRepository;
 import com.example.cloud_storage.service.FileService;
 import com.sun.istack.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

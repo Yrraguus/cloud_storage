@@ -8,6 +8,7 @@ import com.example.cloud_storage.model.FileInfo;
 import com.example.cloud_storage.repositories.FileRepository;
 import com.example.cloud_storage.repositories.UserRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -19,27 +20,30 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class FileService {
     private FileRepository fileRepository;
     private UserRepository userRepository;
 
-    public void uploadFile(String filename, byte[] fileContent, Long size, String userName) {
+    public void uploadFile(String fileName, byte[] fileContent, Long size, String userName) {
         User user = userRepository.findByUsername(userName).orElseThrow(()
                 -> new UsernameNotFoundException(String.format("user not found")));
-        if (fileRepository.findFileByUserIdAndFileName(user.getId(), filename).isPresent()) {
+        if (fileRepository.findFileByUserIdAndFileName(user.getId(), fileName).isPresent()) {
             throw new DuplicateFileNameException("duplicate file name");
         }
         File uploadFile = File.builder()
-                .fileName(filename)
+                .fileName(fileName)
                 .data(fileContent)
                 .size(size)
                 .user(user)
                 .build();
         fileRepository.save(uploadFile);
+        log.info("User {} uploaded file {}", userName, fileName);
     }
 
     public List<FileInfo> getListOfFiles(int limit, String userName) {
         List<File> listFiles = fileRepository.findFilesByUser_Username(userName);
+        log.info("User {} got list of files", userName);
         return listFiles.stream()
                 .map(file -> FileInfo.builder()
                         .filename(file.getFileName())
@@ -51,6 +55,7 @@ public class FileService {
 
     public String deleteFile(String fileName, String userName) throws FileNotFoundException {
         fileRepository.delete(getFile(userName, fileName));
+        log.info("User {} uploaded file {}", userName, fileName);
         return "file deleted";
     }
 
@@ -73,5 +78,6 @@ public class FileService {
         }
         file.setFileName(newFileNameString);
         fileRepository.save(file);
+        log.info("User {} renamed file {}", userName, fileName);
     }
 }

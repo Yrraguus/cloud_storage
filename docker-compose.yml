@@ -1,0 +1,28 @@
+version: '1'
+services:
+  frontend:
+    container_name: frontend
+    build: ./netology-diplom-frontend/
+    ports:
+      - "8000:8080"
+  app:
+    container_name: app-backend
+    build: ./
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/cloud_service?sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&jdbcCompliantTruncation=false
+  database:
+    container_name: "database"
+    image: "mysql:latest"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: "cloud_storage"
+      MYSQL_USER: "root"
+      MYSQL_PASSWORD: "12345678"
+
+
